@@ -1,0 +1,2 @@
+# Providers for application data
+clime.messadmin.providers.ehcache.EhCacheStatistics
