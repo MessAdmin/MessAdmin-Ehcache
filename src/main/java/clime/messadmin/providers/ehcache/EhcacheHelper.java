@@ -30,8 +30,8 @@ public abstract class EhcacheHelper {
 	static {
 		// @since Ehcache 1.7
 		try {
-			isStatisticsEnabled = Ehcache.class.getMethod("isStatisticsEnabled", null);//$NON-NLS-1$
-			setStatisticsEnabled = Ehcache.class.getMethod("setStatisticsEnabled", new Class[] {Boolean.TYPE});//$NON-NLS-1$
+			isStatisticsEnabled = Ehcache.class.getMethod("isStatisticsEnabled");//$NON-NLS-1$
+			setStatisticsEnabled = Ehcache.class.getMethod("setStatisticsEnabled", Boolean.TYPE);//$NON-NLS-1$
 			hasStatistics = true;
 		} catch (SecurityException e) {
 		} catch (NoSuchMethodException e) {
@@ -50,7 +50,7 @@ public abstract class EhcacheHelper {
 		}
 		//return ehCache.isStatisticsEnabled();
 		try {
-			return ((Boolean) isStatisticsEnabled.invoke(ehCache, null)).booleanValue();
+			return ((Boolean) isStatisticsEnabled.invoke(ehCache)).booleanValue();
 		} catch (Exception ignore) {
 			return true;
 		}
@@ -98,22 +98,22 @@ public abstract class EhcacheHelper {
 	static {
 		// @since Ehcache 2.3
 		try {
-			isOverflowToOffHeap        = CacheConfiguration.class.getMethod("isOverflowToOffHeap", null);
-			getMaxMemoryOffHeap        = CacheConfiguration.class.getMethod("getMaxMemoryOffHeap", null);
-			getMaxMemoryOffHeapInBytes = CacheConfiguration.class.getMethod("getMaxMemoryOffHeapInBytes", null);
-			getInMemoryMisses          = Statistics.class.getMethod("getInMemoryMisses", null);
-			getOnDiskMisses            = Statistics.class.getMethod("getOnDiskMisses", null);
-			getOffHeapStoreObjectCount = Statistics.class.getMethod("getOffHeapStoreObjectCount", null);
-			getOffHeapHits             = Statistics.class.getMethod("getOffHeapHits", null);
-			getOffHeapMisses           = Statistics.class.getMethod("getOffHeapMisses", null);
+			isOverflowToOffHeap        = CacheConfiguration.class.getMethod("isOverflowToOffHeap");//$NON-NLS-1$
+			getMaxMemoryOffHeap        = CacheConfiguration.class.getMethod("getMaxMemoryOffHeap");//$NON-NLS-1$
+			getMaxMemoryOffHeapInBytes = CacheConfiguration.class.getMethod("getMaxMemoryOffHeapInBytes");//$NON-NLS-1$
+			getInMemoryMisses          = Statistics.class.getMethod("getInMemoryMisses");//$NON-NLS-1$
+			getOnDiskMisses            = Statistics.class.getMethod("getOnDiskMisses");//$NON-NLS-1$
+			getOffHeapStoreObjectCount = Statistics.class.getMethod("getOffHeapStoreObjectCount");//$NON-NLS-1$
+			getOffHeapHits             = Statistics.class.getMethod("getOffHeapHits");//$NON-NLS-1$
+			getOffHeapMisses           = Statistics.class.getMethod("getOffHeapMisses");//$NON-NLS-1$
 			hasOffHeap = true;
 		} catch (SecurityException e) {
 		} catch (NoSuchMethodException e) {
 		}
 		// @since Ehcache 2.4
 		try {
-			getAverageSearchTime = Statistics.class.getMethod("getAverageSearchTime", null);//$NON-NLS-1$
-			getSearchesPerSecond = Statistics.class.getMethod("getSearchesPerSecond", null);//$NON-NLS-1$
+			getAverageSearchTime = Statistics.class.getMethod("getAverageSearchTime");//$NON-NLS-1$
+			getSearchesPerSecond = Statistics.class.getMethod("getSearchesPerSecond");//$NON-NLS-1$
 			hasSearch = true;
 		} catch (SecurityException e) {
 		} catch (NoSuchMethodException e) {
@@ -129,7 +129,7 @@ public abstract class EhcacheHelper {
 		}
 		//return stats.getInMemoryMisses();
 		try {
-			return ((Long) getInMemoryMisses.invoke(stats, null)).longValue();
+			return ((Long) getInMemoryMisses.invoke(stats)).longValue();
 		} catch (Exception ignore) {
 			return -1;
 		}
@@ -143,7 +143,7 @@ public abstract class EhcacheHelper {
 		}
 		//return stats.getOffHeapHits();
 		try {
-			return ((Long) getOnDiskMisses.invoke(stats, null)).longValue();
+			return ((Long) getOnDiskMisses.invoke(stats)).longValue();
 		} catch (Exception ignore) {
 			return -1;
 		}
@@ -158,7 +158,7 @@ public abstract class EhcacheHelper {
 		}
 		//return config.isOverflowToOffHeap();
 		try {
-			return ((Boolean) isOverflowToOffHeap.invoke(config, null)).booleanValue();
+			return ((Boolean) isOverflowToOffHeap.invoke(config)).booleanValue();
 		} catch (Exception ignore) {
 			return false;
 		}
@@ -172,7 +172,7 @@ public abstract class EhcacheHelper {
 		}
 		//return config.getMaxMemoryOffHeap();
 		try {
-			return (String) getMaxMemoryOffHeap.invoke(config, null);
+			return (String) getMaxMemoryOffHeap.invoke(config);
 		} catch (Exception ignore) {
 			return "";
 		}
@@ -186,7 +186,7 @@ public abstract class EhcacheHelper {
 		}
 		//return config.getMaxMemoryOffHeapInBytes();
 		try {
-			return ((Long) getMaxMemoryOffHeapInBytes.invoke(config, null)).longValue();
+			return ((Long) getMaxMemoryOffHeapInBytes.invoke(config)).longValue();
 		} catch (Exception ignore) {
 			return -1;
 		}
@@ -200,7 +200,7 @@ public abstract class EhcacheHelper {
 		}
 		//return stats.getOffHeapHits();
 		try {
-			return ((Long) getOffHeapStoreObjectCount.invoke(stats, null)).longValue();
+			return ((Long) getOffHeapStoreObjectCount.invoke(stats)).longValue();
 		} catch (Exception ignore) {
 			return -1;
 		}
@@ -214,7 +214,7 @@ public abstract class EhcacheHelper {
 		}
 		//return stats.getOffHeapHits();
 		try {
-			return ((Long) getOffHeapHits.invoke(stats, null)).longValue();
+			return ((Long) getOffHeapHits.invoke(stats)).longValue();
 		} catch (Exception ignore) {
 			return -1;
 		}
@@ -228,7 +228,7 @@ public abstract class EhcacheHelper {
 		}
 		//return stats.getOffHeapMisses();
 		try {
-			return ((Long) getOffHeapMisses.invoke(stats, null)).longValue();
+			return ((Long) getOffHeapMisses.invoke(stats)).longValue();
 		} catch (Exception ignore) {
 			return -1;
 		}
@@ -244,7 +244,7 @@ public abstract class EhcacheHelper {
 		}
 		//return stats.getAverageSearchTime();
 		try {
-			return ((Long) getAverageSearchTime.invoke(stats, null)).longValue();
+			return ((Long) getAverageSearchTime.invoke(stats)).longValue();
 		} catch (Exception ignore) {
 			return -1;
 		}
@@ -259,7 +259,7 @@ public abstract class EhcacheHelper {
 		}
 		//return stats.getSearchesPerSecond();
 		try {
-			return ((Long) getSearchesPerSecond.invoke(stats, null)).longValue();
+			return ((Long) getSearchesPerSecond.invoke(stats)).longValue();
 		} catch (Exception ignore) {
 			return -1;
 		}

@@ -6,6 +6,7 @@ package clime.messadmin.providers.ehcache;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -20,7 +21,6 @@ import clime.messadmin.admin.BaseAdminActionWithContext;
 import clime.messadmin.i18n.I18NSupport;
 import clime.messadmin.model.Server;
 import clime.messadmin.providers.spi.ApplicationDataProvider;
-import clime.messadmin.utils.Integers;
 import clime.messadmin.utils.StringUtils;
 
 /**
@@ -54,17 +54,17 @@ public class EhCacheStatistics extends BaseAdminActionWithContext implements App
 		final ClassLoader cl = Server.getInstance().getApplication(context).getApplicationInfo().getClassLoader();
 		int nCaches = 0;
 		int nManagers = 0;
-		for (Iterator iterator = CacheManager.ALL_CACHE_MANAGERS.iterator(); iterator.hasNext();) {
-			CacheManager cacheManager = (CacheManager) iterator.next();
+		for (CacheManager cacheManager : (List<CacheManager>) CacheManager.ALL_CACHE_MANAGERS) {
 			++nManagers;
 			nCaches += cacheManager.getCacheNames().length;
 		}
 		return I18NSupport.getLocalizedMessage(BUNDLE_NAME, cl, "title", new Object[] {//$NON-NLS-1$
-				Integers.valueOf(nCaches), Integers.valueOf(nManagers)
+				Integer.valueOf(nCaches), Integer.valueOf(nManagers)
 		});
 	}
 
 	/** {@inheritDoc} */
+	@Override
 	public int getPriority() {
 		return 0;
 	}
@@ -73,9 +73,7 @@ public class EhCacheStatistics extends BaseAdminActionWithContext implements App
 	public String getXHTMLApplicationData(ServletContext context) {
 		final ClassLoader cl = Server.getInstance().getApplication(context).getApplicationInfo().getClassLoader();
 		StringBuffer result = new StringBuffer(512);
-		Iterator allCMIter = CacheManager.ALL_CACHE_MANAGERS.iterator();
-		while (allCMIter.hasNext()) {
-			CacheManager ehCacheManager = (CacheManager) allCMIter.next();
+		for (CacheManager ehCacheManager : (List<CacheManager>) CacheManager.ALL_CACHE_MANAGERS) {
 			if (result.length() > 0) {// 2nd+ CacheManager
 				result.append("\n<hr/>\n");
 			}
@@ -151,6 +149,7 @@ public class EhCacheStatistics extends BaseAdminActionWithContext implements App
 	}
 
 	/** {@inheritDoc} */
+	@Override
 	public void serviceWithContext(HttpServletRequest request, HttpServletResponse response, String context) throws ServletException, IOException {
 		String ehcacheAction = request.getParameter(PARAM_EHCACHE_ACTION_NAME);
 		if (StringUtils.isBlank(ehcacheAction)) {

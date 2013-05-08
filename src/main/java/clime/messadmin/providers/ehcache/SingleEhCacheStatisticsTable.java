@@ -16,7 +16,6 @@ import net.sf.ehcache.config.CacheConfiguration;
 
 import clime.messadmin.i18n.I18NSupport;
 import clime.messadmin.providers.spi.BaseTabularDataProvider;
-import clime.messadmin.utils.Longs;
 import clime.messadmin.utils.StringUtils;
 
 /**
@@ -45,14 +44,14 @@ class SingleEhCacheStatisticsTable extends BaseTabularDataProvider {
 	protected String getTableCaption(Ehcache ehCache) {
 		//FIXME add ajax links to: clearStatistics, flush/removeAll
 		CacheConfiguration cacheConfiguration = ehCache.getCacheConfiguration();
-		List argsTableCaption = new ArrayList();
+		List<Object> argsTableCaption = new ArrayList<Object>();
 		argsTableCaption.add(StringUtils.escapeXml(ehCache.getName()));
-		argsTableCaption.add(cacheConfiguration.isEternal() ? Longs.valueOf(1) : Longs.valueOf(0));
-		argsTableCaption.add(Longs.valueOf(cacheConfiguration.getTimeToLiveSeconds()));
-		argsTableCaption.add(Longs.valueOf(cacheConfiguration.getTimeToIdleSeconds()));
+		argsTableCaption.add(cacheConfiguration.isEternal() ? Long.valueOf(1) : Long.valueOf(0));
+		argsTableCaption.add(Long.valueOf(cacheConfiguration.getTimeToLiveSeconds()));
+		argsTableCaption.add(Long.valueOf(cacheConfiguration.getTimeToIdleSeconds()));
 		// disk persistence is only relevant if overflowToDisk is true
 		argsTableCaption.add(cacheConfiguration.isOverflowToDisk() && cacheConfiguration.isDiskPersistent()
-				? Longs.valueOf(1) : Longs.valueOf(0));
+				? Long.valueOf(1) : Long.valueOf(0));
 		String caption = I18NSupport.getLocalizedMessage(BUNDLE_NAME, I18NSupport.getAdminLocale(), "caption", argsTableCaption.toArray());//$NON-NLS-1$
 		return caption;
 	}
@@ -69,20 +68,20 @@ class SingleEhCacheStatisticsTable extends BaseTabularDataProvider {
 		NumberFormat numberFormatter = NumberFormat.getNumberInstance(I18NSupport.getAdminLocale());
 		Statistics ehStats = ehCache.getStatistics();
 		CacheConfiguration cacheConfiguration = ehCache.getCacheConfiguration();
-		List data = new LinkedList();
+		List<Object> data = new LinkedList<Object>();
 
 		// Start by adding some of the cache properties
 
 		//data.add(new Object[] {"Guid", ehCache.getGuid(), null});
 		String keyObjectCountDetails = "ObjectCount.details";//$NON-NLS-1$
-		List argsObjectCountDetails = new ArrayList();
+		List<Object> argsObjectCountDetails = new ArrayList<Object>();
 		String keyCacheHitsDetails = "CacheHits.details";//$NON-NLS-1$
-		List argsCacheHitsDetails = new ArrayList();
+		List<Object> argsCacheHitsDetails = new ArrayList<Object>();
 		String keyCacheMissesDetails = "CacheMisses.details";//$NON-NLS-1$
-		List argsCacheMissesDetails = new ArrayList();
-		argsObjectCountDetails.add(Longs.valueOf(ehCache.getMemoryStoreSize()));//Ehcache 1.6: ==ehStats.getMemoryStoreObjectCount()
-		argsObjectCountDetails.add(Longs.valueOf(cacheConfiguration.getMaxElementsInMemory()));
-		argsCacheHitsDetails.add(Longs.valueOf(ehStats.getInMemoryHits()));
+		List<Object> argsCacheMissesDetails = new ArrayList<Object>();
+		argsObjectCountDetails.add(Long.valueOf(ehCache.getMemoryStoreSize()));//Ehcache 1.6: ==ehStats.getMemoryStoreObjectCount()
+		argsObjectCountDetails.add(Long.valueOf(cacheConfiguration.getMaxElementsInMemory()));
+		argsCacheHitsDetails.add(Long.valueOf(ehStats.getInMemoryHits()));
 		if (EhcacheHelper.hasOffHeap) {
 			if (! EhcacheHelper.isOverflowToOffHeap(cacheConfiguration)) {
 				// additional information available, but BigMemory is disabled (no .withOffHeap key)
@@ -90,24 +89,24 @@ class SingleEhCacheStatisticsTable extends BaseTabularDataProvider {
 				keyCacheMissesDetails += ".23";
 			}
 			argsCacheHitsDetails.add(new Double(EhcacheHelper.getInMemoryCacheHitPercentage(ehStats)));
-			argsCacheMissesDetails.add(Longs.valueOf(EhcacheHelper.getInMemoryMisses(ehStats)));
+			argsCacheMissesDetails.add(Long.valueOf(EhcacheHelper.getInMemoryMisses(ehStats)));
 		}
 		if (EhcacheHelper.hasOffHeap && EhcacheHelper.isOverflowToOffHeap(cacheConfiguration)) {
 			keyObjectCountDetails += ".withOffHeap";//$NON-NLS-1$
-			argsObjectCountDetails.add(Longs.valueOf(EhcacheHelper.getOffHeapStoreObjectCount(ehStats)));
+			argsObjectCountDetails.add(Long.valueOf(EhcacheHelper.getOffHeapStoreObjectCount(ehStats)));
 			argsObjectCountDetails.add(EhcacheHelper.getMaxMemoryOffHeap(cacheConfiguration));
-			argsCacheHitsDetails.add(Longs.valueOf(EhcacheHelper.getOffHeapHits(ehStats)));
+			argsCacheHitsDetails.add(Long.valueOf(EhcacheHelper.getOffHeapHits(ehStats)));
 			argsCacheHitsDetails.add(new Double(EhcacheHelper.getOffHeapCacheHitPercentage(ehStats)));
-			argsCacheMissesDetails.add(Longs.valueOf(EhcacheHelper.getOffHeapMisses(ehStats)));
+			argsCacheMissesDetails.add(Long.valueOf(EhcacheHelper.getOffHeapMisses(ehStats)));
 		}
 		if (cacheConfiguration.isOverflowToDisk()) {
 			keyObjectCountDetails += ".withDisk";//$NON-NLS-1$
-			argsObjectCountDetails.add(Longs.valueOf(ehCache.getDiskStoreSize()));//Ehcache 1.6: ==ehStats.getDiskStoreObjectCount()
-			argsObjectCountDetails.add(Longs.valueOf(cacheConfiguration.getMaxElementsOnDisk()));
-			argsCacheHitsDetails.add(Longs.valueOf(ehStats.getOnDiskHits()));
+			argsObjectCountDetails.add(Long.valueOf(ehCache.getDiskStoreSize()));//Ehcache 1.6: ==ehStats.getDiskStoreObjectCount()
+			argsObjectCountDetails.add(Long.valueOf(cacheConfiguration.getMaxElementsOnDisk()));
+			argsCacheHitsDetails.add(Long.valueOf(ehStats.getOnDiskHits()));
 			if (EhcacheHelper.hasOffHeap) {
 				argsCacheHitsDetails.add(new Double(EhcacheHelper.getOnDiskCacheHitPercentage(ehStats)));
-				argsCacheMissesDetails.add(Longs.valueOf(EhcacheHelper.getOnDiskMisses(ehStats)));
+				argsCacheMissesDetails.add(Long.valueOf(EhcacheHelper.getOnDiskMisses(ehStats)));
 			}
 		}
 
@@ -126,14 +125,14 @@ class SingleEhCacheStatisticsTable extends BaseTabularDataProvider {
 		if (EhcacheHelper.isStatisticsEnabled(ehCache)) {
 			data.add(new Object[] {I18NSupport.getLocalizedMessage(BUNDLE_NAME, "CacheHits"),//$NON-NLS-1
 					I18NSupport.getLocalizedMessage(BUNDLE_NAME, "CacheHits.value",
-							new Object[] {Longs.valueOf(ehStats.getCacheHits()), new Double(EhcacheHelper.getCacheHitPercentage(ehStats))}),
+							new Object[] {Long.valueOf(ehStats.getCacheHits()), new Double(EhcacheHelper.getCacheHitPercentage(ehStats))}),
 					I18NSupport.getLocalizedMessage(BUNDLE_NAME, keyCacheHitsDetails,
 							argsCacheHitsDetails.toArray()
 					)
 			});
 			data.add(new Object[] {I18NSupport.getLocalizedMessage(BUNDLE_NAME, "CacheMisses"),//$NON-NLS-1
 					I18NSupport.getLocalizedMessage(BUNDLE_NAME, "CacheMisses.value",
-							new Object[] {Longs.valueOf(ehStats.getCacheMisses()), new Double(EhcacheHelper.getCacheMissPercentage(ehStats))}),
+							new Object[] {Long.valueOf(ehStats.getCacheMisses()), new Double(EhcacheHelper.getCacheMissPercentage(ehStats))}),
 					I18NSupport.getLocalizedMessage(BUNDLE_NAME, keyCacheMissesDetails,
 							argsCacheMissesDetails.toArray()
 					)
@@ -158,7 +157,7 @@ class SingleEhCacheStatisticsTable extends BaseTabularDataProvider {
 			if (EhcacheHelper.hasSearch) {
 				data.add(new Object[] {I18NSupport.getLocalizedMessage(BUNDLE_NAME, "AverageSearchTime"),//$NON-NLS-1
 						I18NSupport.getLocalizedMessage(BUNDLE_NAME, "AverageSearchTime.value", new Object[] {//$NON-NLS-1$
-								Longs.valueOf(EhcacheHelper.getAverageSearchTime(ehStats))
+								Long.valueOf(EhcacheHelper.getAverageSearchTime(ehStats))
 						}),
 						null
 				});
@@ -168,7 +167,7 @@ class SingleEhCacheStatisticsTable extends BaseTabularDataProvider {
 			}
 		}
 
-		Object[][] result = (Object[][]) data.toArray(new Object[data.size()][]);
+		Object[][] result = data.toArray(new Object[data.size()][]);
 		return result;
 	}
 }

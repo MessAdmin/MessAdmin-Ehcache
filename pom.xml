@@ -17,7 +17,7 @@
 	<parent>
 		<groupId>net.sourceforge.messadmin</groupId>
 		<artifactId>MessAdmin</artifactId>
-		<version>5.3</version>
+		<version>5.4</version>
 	</parent>
 
 	<!-- Dependencies -->
@@ -35,9 +35,13 @@
 		<dependency>
 			<groupId>net.sf.ehcache</groupId>
 			<artifactId>ehcache</artifactId>
-			<version>[1.3.0,)</version>
+			<version>[1.4.1,)</version>
 			<optional>true</optional><!-- Need to mark this as optional, as ehcache 1.6.2+ is named "ehcache-core" -->
-			<exclusions><!--  Misc exclusions for versions [1.3.0,1.5.0] -->
+			<exclusions><!--  Misc exclusions for versions [1.3.0,2.6.6] -->
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+				</exclusion>
 				<exclusion>
 					<groupId>net.sf.jsr107cache</groupId>
 					<artifactId>jsr107cache</artifactId>
@@ -129,9 +133,4 @@
 	<!-- - - - - - - -  -->
 
 	<packaging>jar</packaging>
-
-	<properties>
-		<maven.compiler.source>1.4</maven.compiler.source>
-		<maven.compiler.target>1.4</maven.compiler.target>
-	</properties>
 </project>
