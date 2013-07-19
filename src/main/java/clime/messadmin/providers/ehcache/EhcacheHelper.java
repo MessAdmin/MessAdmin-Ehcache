@@ -10,7 +10,7 @@ import net.sf.ehcache.Statistics;
 import net.sf.ehcache.config.CacheConfiguration;
 
 /**
- * Access new Ehcache methods via reflexion, to avoid requiring linking the absolute newest version.
+ * Access new Ehcache methods via reflection, to avoid requiring linking the absolute newest version.
  * @author C&eacute;drik LIME
  */
 public abstract class EhcacheHelper {

@@ -164,9 +164,9 @@ public class EhCacheStatistics extends BaseAdminActionWithContext implements App
 		} // else
 		// get Ehcache to modify
 		CacheManager cacheManager = null;
-		Iterator cacheManagers = CacheManager.ALL_CACHE_MANAGERS.iterator();
+		Iterator<CacheManager> cacheManagers = CacheManager.ALL_CACHE_MANAGERS.iterator();
 		while (cacheManagers.hasNext()) {
-			CacheManager cacheManagerTest = (CacheManager) cacheManagers.next();
+			CacheManager cacheManagerTest = cacheManagers.next();
 			if (cacheManagerName.equals(cacheManagerTest.getName())) {
 				cacheManager = cacheManagerTest;
 				break;
