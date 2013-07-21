@@ -66,7 +66,7 @@ public class EhCacheStatistics extends BaseAdminActionWithContext implements App
 	/** {@inheritDoc} */
 	@Override
 	public int getPriority() {
-		return 0;
+		return 300;
 	}
 
 	/** {@inheritDoc} */
