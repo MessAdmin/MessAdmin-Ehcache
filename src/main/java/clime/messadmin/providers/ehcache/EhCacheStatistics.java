@@ -80,17 +80,33 @@ public class EhCacheStatistics extends BaseAdminActionWithContext implements App
 			result.append("<h3>");
 			result.append(StringUtils.escapeXml(ehCacheManager.getName())).append(" (").append(ehCacheManager.getStatus().toString()).append(')');
 			result.append("</h3>\n");
-			String urlPrefixRemoveAll = getUrlPrefix(context, ehCacheManager, EHCACHE_ACTION_REMOVE_ALL);
-			String urlPrefixClearStats = getUrlPrefix(context, ehCacheManager, EHCACHE_ACTION_CLEAR_STATS);
-			String urlPrefixEnableStats = getUrlPrefix(context, ehCacheManager, EHCACHE_ACTION_SET_STATISTICS_ON);
+			String urlPrefixRemoveAll    = getUrlPrefix(context, ehCacheManager, EHCACHE_ACTION_REMOVE_ALL);
+			String urlPrefixClearStats   = getUrlPrefix(context, ehCacheManager, EHCACHE_ACTION_CLEAR_STATS);
+			String urlPrefixEnableStats  = getUrlPrefix(context, ehCacheManager, EHCACHE_ACTION_SET_STATISTICS_ON);
 			String urlPrefixDisableStats = getUrlPrefix(context, ehCacheManager, EHCACHE_ACTION_SET_STATISTICS_OFF);
+			if (EhcacheHelper.hasStatistics) { // No link if the capability is not available (Ehcache < 1.7)!
+				result.append(buildActionLink(urlPrefixDisableStats, I18NSupport.getLocalizedMessage(BUNDLE_NAME, cl, "action.disableStats"), this));//$NON-NLS-1$
+				result.append("&nbsp;|&nbsp;");
+				result.append(buildActionLink(urlPrefixEnableStats, I18NSupport.getLocalizedMessage(BUNDLE_NAME, cl, "action.enableStats"), this));//$NON-NLS-1$
+				result.append("&nbsp;|&nbsp;");
+			}
+			result.append(buildActionLink(urlPrefixClearStats, I18NSupport.getLocalizedMessage(BUNDLE_NAME, cl, "action.clearStatistics"), this));//$NON-NLS-1$
+			result.append("&nbsp;|&nbsp;");
+			result.append(buildActionLink(urlPrefixRemoveAll, I18NSupport.getLocalizedMessage(BUNDLE_NAME, cl, "action.removeAll"),//$NON-NLS-1$
+					I18NSupport.getLocalizedMessage(BUNDLE_NAME, cl, "action.removeAll.confirmJS"), this));//$NON-NLS-1$
+			result.append("<br />\n");
+			urlPrefixRemoveAll    += '&' + PARAM_CACHE_GUID + '=';
+			urlPrefixClearStats   += '&' + PARAM_CACHE_GUID + '=';
+			urlPrefixEnableStats  += '&' + PARAM_CACHE_GUID + '=';
+			urlPrefixDisableStats += '&' + PARAM_CACHE_GUID + '=';
 			String[] ehCacheNames = ehCacheManager.getCacheNames();
 			boolean firstCache = true;
 			for (int i = 0; i < ehCacheNames.length; ++i) {
 				String ehCacheName = ehCacheNames[i];
 				Ehcache ehCache = ehCacheManager.getEhcache(ehCacheName);
-				if (! firstCache) {
+				if (firstCache) {
 					firstCache = false;
+				} else {
 					result.append("<br />\n");
 				}
 				// Display the current statistics
@@ -114,15 +130,15 @@ public class EhCacheStatistics extends BaseAdminActionWithContext implements App
 						I18NSupport.getLocalizedMessage(BUNDLE_NAME, cl, "action.removeAll.confirmJS"), this));//$NON-NLS-1$
 			}
 		}
+		result.append('\n');
 		return result.toString();
 	}
 
 	protected String getUrlPrefix(ServletContext context, CacheManager ehCacheManager, String subAction) {
-		String urlPrefix = new StringBuffer().append('?').append(ACTION_PARAMETER_NAME).append('=').append(getActionID())
+		String urlPrefix = new StringBuilder().append('?').append(ACTION_PARAMETER_NAME).append('=').append(getActionID())
 			.append('&').append(PARAM_EHCACHE_ACTION_NAME).append('=').append(subAction)
 			.append('&').append(CONTEXT_KEY).append('=').append(urlEncodeUTF8(Server.getInstance().getApplication(context).getApplicationInfo().getInternalContextPath()))
-			.append('&').append(PARAM_CACHE_MANAGER).append('=').append(urlEncodeUTF8(ehCacheManager.getName()))
-			.append('&').append(PARAM_CACHE_GUID).append('=').toString();
+			.append('&').append(PARAM_CACHE_MANAGER).append('=').append(urlEncodeUTF8(ehCacheManager.getName())).toString();
 		return urlPrefix;
 	}
 
@@ -157,9 +173,8 @@ public class EhCacheStatistics extends BaseAdminActionWithContext implements App
 			return;
 		}
 		String cacheManagerName = request.getParameter(PARAM_CACHE_MANAGER);
-		String cacheGUID = request.getParameter(PARAM_CACHE_GUID);
-		if (StringUtils.isBlank(cacheManagerName) || StringUtils.isBlank(cacheGUID)) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, PARAM_CACHE_MANAGER + " and " + PARAM_CACHE_GUID + " parameters are required");
+		if (StringUtils.isBlank(cacheManagerName)) {
+			response.sendError(HttpServletResponse.SC_BAD_REQUEST, PARAM_CACHE_MANAGER + " parameter is required");
 			return;
 		} // else
 		// get Ehcache to modify
@@ -176,35 +191,66 @@ public class EhCacheStatistics extends BaseAdminActionWithContext implements App
 			response.sendError(HttpServletResponse.SC_NOT_FOUND, "Can not find CacheManager named " + cacheManagerName);
 			return;
 		}
-//		if (! cacheManager.cacheExists(cacheName)) {
-//			throw new IllegalArgumentException("Can not find Cache named " + cacheName + " for CacheManager " + cacheManagerName);
-//		}
-//		Ehcache cache = cacheManager.getEhcache(cacheName);
 		Ehcache cache = null;
-		String[] cacheNames = cacheManager.getCacheNames();
-		for (int i = 0; i < cacheNames.length; ++i) {
-			Ehcache cacheTest = cacheManager.getCache(cacheNames[i]);
-			if (cacheTest != null && cacheGUID.equals(cacheTest.getGuid())) {
-				cache = cacheTest;
-				break;
+		String cacheGUID = request.getParameter(PARAM_CACHE_GUID);
+		if (StringUtils.isNotBlank(cacheGUID)) {
+			for (String cacheName : cacheManager.getCacheNames()) {
+				Ehcache cacheTest = cacheManager.getCache(cacheName);
+				if (cacheTest != null && cacheGUID.equals(cacheTest.getGuid())) {
+					cache = cacheTest;
+					break;
+				}
+			}
+			if (cache == null) {
+				response.sendError(HttpServletResponse.SC_NOT_FOUND, "Can not find Cache of GUID " + cacheGUID + " for CacheManager " + cacheManagerName);
+				return;
 			}
 		}
-		if (cache == null) {
-			response.sendError(HttpServletResponse.SC_NOT_FOUND, "Can not find Cache of GUID " + cacheGUID + " for CacheManager " + cacheManagerName);
-			return;
-		}
-		assert cache != null;
+		// Note the cache can be null here, as the PARAM_CACHE_GUID is not mandatory!
 		if (EHCACHE_ACTION_REMOVE_ALL.equalsIgnoreCase(ehcacheAction)) {
-			//cacheManager.clearAll();
 			//cache.remove("");
 			//cache.evictExpiredElements();
-			cache.removeAll();
+			if (cache != null) {
+				cache.removeAll();
+			} else {
+//				// do not allow to remove all cache elements for all CacheManager's caches
+//				response.sendError(HttpServletResponse.SC_NOT_FOUND, PARAM_CACHE_GUID + " parameter is required");
+//				return;
+				cacheManager.clearAll();
+			}
 		} else if (EHCACHE_ACTION_CLEAR_STATS.equalsIgnoreCase(ehcacheAction)) {
-			cache.clearStatistics();
+			if (cache != null) {
+				cache.clearStatistics();
+			} else {
+				for (String cacheName : cacheManager.getCacheNames()) {
+					Ehcache cache2 = cacheManager.getCache(cacheName);
+					if (cache2 != null) {
+						cache2.clearStatistics();
+					}
+				}
+			}
 		} else if (EHCACHE_ACTION_SET_STATISTICS_ON.equalsIgnoreCase(ehcacheAction)) {
-			EhcacheHelper.setStatisticsEnabled(cache, true);
+			if (cache != null) {
+				EhcacheHelper.setStatisticsEnabled(cache, true);
+			} else {
+				for (String cacheName : cacheManager.getCacheNames()) {
+					Ehcache cache2 = cacheManager.getCache(cacheName);
+					if (cache2 != null) {
+						EhcacheHelper.setStatisticsEnabled(cache2, true);
+					}
+				}
+			}
 		} else if (EHCACHE_ACTION_SET_STATISTICS_OFF.equalsIgnoreCase(ehcacheAction)) {
-			EhcacheHelper.setStatisticsEnabled(cache, false);
+			if (cache != null) {
+				EhcacheHelper.setStatisticsEnabled(cache, false);
+			} else {
+				for (String cacheName : cacheManager.getCacheNames()) {
+					Ehcache cache2 = cacheManager.getCache(cacheName);
+					if (cache2 != null) {
+						EhcacheHelper.setStatisticsEnabled(cache2, false);
+					}
+				}
+			}
 		} else {
 			response.sendError(HttpServletResponse.SC_NOT_IMPLEMENTED, ehcacheAction + " value for parameter " + PARAM_EHCACHE_ACTION_NAME + " is unknown");
 			return;
