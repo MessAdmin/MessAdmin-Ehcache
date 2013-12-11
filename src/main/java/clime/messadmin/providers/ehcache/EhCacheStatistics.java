@@ -51,7 +51,7 @@ public class EhCacheStatistics extends BaseAdminActionWithContext implements App
 
 	/** {@inheritDoc} */
 	public String getApplicationDataTitle(ServletContext context) {
-		final ClassLoader cl = Server.getInstance().getApplication(context).getApplicationInfo().getClassLoader();
+		final ClassLoader cl = I18NSupport.getClassLoader(context);
 		int nCaches = 0;
 		int nManagers = 0;
 		for (CacheManager cacheManager : (List<CacheManager>) CacheManager.ALL_CACHE_MANAGERS) {
@@ -71,7 +71,7 @@ public class EhCacheStatistics extends BaseAdminActionWithContext implements App
 
 	/** {@inheritDoc} */
 	public String getXHTMLApplicationData(ServletContext context) {
-		final ClassLoader cl = Server.getInstance().getApplication(context).getApplicationInfo().getClassLoader();
+		final ClassLoader cl = I18NSupport.getClassLoader(context);
 		StringBuffer result = new StringBuffer(512);
 		for (CacheManager ehCacheManager : (List<CacheManager>) CacheManager.ALL_CACHE_MANAGERS) {
 			if (result.length() > 0) {// 2nd+ CacheManager
